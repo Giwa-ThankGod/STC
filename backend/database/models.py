@@ -1,7 +1,11 @@
 import bcrypt
 import json
+from datetime import datetime
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
 from flask_sqlalchemy import SQLAlchemy
+
+date = datetime.now()
+db_string = date.strftime("%B %d, %Y | %H:%M:%S")
 
 host = 'localhost:5432'
 database_name = 'stc'
@@ -78,12 +82,34 @@ class Question(db.Model):
     title = Column(String(80), nullable=False)
     body = Column(String(), unique=True, nullable=False)
     tag = Column(String(150), nullable=True)
-    time_stamp = Column(String(80))
-    user = db.relationship('user', backref=db.backref('questions',lazy=True, cascade='all,delete'))
-    user_id = Column(String(), ForeignKey('user.id'))
+    created_on = Column(String(80))
+    user = db.relationship('User', backref=db.backref('user',lazy=True, cascade='all,delete'))
+    user_id = Column(Integer(), ForeignKey('user.id'))
 
     def __init__(self, title, body, tag, user_id):
         self.title = title
         self.body = body
         self.tag = tag
+        self.created_on = db_string
         self.user_id = user_id
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def format(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'body': self.body,
+            'tags': json.loads(self.tag),
+            'created_on': self.created_on,
+            'user_id': self.user_id
+            }
