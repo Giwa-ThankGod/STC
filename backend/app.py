@@ -8,7 +8,7 @@ from flask_cors import CORS
 from jose import jwt
 from auth import AuthError, requires_auth, requires_role
 
-from database.models import db, setup_db, User
+from database.models import db, setup_db, User, Question
 
 app = Flask(__name__)
 setup_db(app)
@@ -34,6 +34,7 @@ def private(token):
 #----------------------------------------------------------------------------#
 @app.route('/users', methods=['GET'])
 @requires_auth
+@requires_role('staff')
 def users(token):
     users = User.query.all()
 
@@ -42,14 +43,14 @@ def users(token):
         'token': token,
         'users': [user.long() for user in users]
     })
-#----------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------#
-# REGISTER.
+# CREATE USER : REGISTER.
 #----------------------------------------------------------------------------#
 @app.route('/users', methods=['POST'])
 @requires_auth
-@requires_role(role='manager')
+@requires_role(role='manager') 
 def create_user(payload):
     #grab post arguments
     body = request.get_json()
@@ -104,7 +105,13 @@ def delete_user(user_id):
 def login():
     auth = request.authorization
     
-    user = User.query.filter(User.username == auth.username).first()
+    try:
+        user = User.query.filter(User.username == auth.username).first()
+    except:
+        raise AuthError({
+            "code": 'Invalid username!!!',
+            "description": f'Could not find user with username {auth.username}'
+        }, 422)
     
     if auth and user.is_authenticated(auth.password):
         token = jwt.encode({
@@ -117,6 +124,117 @@ def login():
             'code': 'authenticaion failed',
             f'description': 'Could not authenticate user.'
         }, 401)
+#----------------------------------------------------------------------------#
+
+#----------------------------------------------------------------------------#
+# READ QUESTIONS.
+#----------------------------------------------------------------------------#
+@app.route('/questions', methods=['GET'])
+def get_questions():
+    questions = Question.query.all()
+
+    return jsonify({
+        'success': True,
+        'questions': [question.format() for question in questions]
+    })
+#----------------------------------------------------------------------------#
+
+#----------------------------------------------------------------------------#
+# CREATE QUESTIONS.
+#----------------------------------------------------------------------------#
+@app.route('/questions', methods=['POST'])
+# @requires_auth
+def create_questions():
+    #grab post arguments
+    data = request.get_json()
+
+    title = data.get("title", None)
+    body = data.get("body", None)
+    tags = data.get("tags", None)
+    user_id = data.get("user_id", None)
+
+    try:
+        question = Question(
+            title = title,
+            body = body,
+            tag = json.dumps(tags),
+            user_id = user_id
+        )
+        question.insert()
+    except:
+        abort(422)
+
+    return jsonify({
+        "success": True,
+        "question": question.id,
+    })
+#----------------------------------------------------------------------------#
+
+#----------------------------------------------------------------------------#
+# UPDATE QUESTIONS.
+#----------------------------------------------------------------------------#
+@app.route('/questions/<id>', methods=['PATCH'])
+def update_questions(id):
+    data = request.get_json()
+
+    title = data.get("title", None)
+    body = data.get("body", None)
+    tags = data.get("tags", None)
+
+    try:
+        question = Question.query.filter(Question.id == id).first()
+        question.title = title
+        question.body = body
+        question.tag = json.dumps(tags)
+
+        question.update()
+    except:
+        abort(404)
+
+    questions = Question.query.all()
+
+    return jsonify({
+        'success': True,
+        'questions': [question.format() for question in questions]
+    })
+#----------------------------------------------------------------------------#
+
+#----------------------------------------------------------------------------#
+# DELETE QUESTIONS.
+#----------------------------------------------------------------------------#
+@app.route('/questions/<id>', methods=['DELETE'])
+def delete_questions():
+    try:
+        question = Question.query.filter(Question.id == id).first()
+        question.delete()
+    except:
+        abort(404)
+
+    return jsonify({
+        'success': True,
+        'questions': question.format()
+    })
+#----------------------------------------------------------------------------#
+
+#----------------------------------------------------------------------------#
+# SEARCH QUESTIONS.
+#----------------------------------------------------------------------------#
+@app.route('/questions/', methods=['GET'])
+def search_questions():
+    search_term = request.args.get('search', 'noklgfkldg')
+
+    # if search_term == None:
+    #     return jsonify({
+    #             'success': True,
+    #             'questions': None
+    #         })
+    questions = Question.query.filter(Question.title.ilike('%'+search_term+'%'))
+
+    return jsonify({
+        'success': True,
+        'search_term': search_term,
+        'questions': [question.format() for question in questions]
+    })
 #----------------------------------------------------------------------------#
 
 """
