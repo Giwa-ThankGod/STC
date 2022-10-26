@@ -17,7 +17,17 @@ migrate = Migrate(app, db)
 
 db.create_all()
 
+QUESTIONS_PER_PAGE = 10
 
+def paginate(request, selection):
+    page = request.args.get('page', 1, type=int)
+    start = (page - 1) * QUESTIONS_PER_PAGE
+    end = start + 10
+
+    formatted_questions = [entity.format() for entity in selection]
+    current_questions = formatted_questions[start:end]
+
+    return current_questions
 
 @app.route('/public', methods=['GET'])
 def public():
@@ -135,9 +145,14 @@ def login():
 def get_questions():
     questions = Question.query.all()
 
+    paginated_questions = paginate(request, questions)
+
+    if paginated_questions == []:
+            abort(404)
+
     return jsonify({
         'success': True,
-        'questions': [question.format() for question in questions]
+        'questions': paginated_questions
     })
 #----------------------------------------------------------------------------#
 
