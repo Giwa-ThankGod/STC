@@ -17,6 +17,8 @@ migrate = Migrate(app, db)
 
 db.create_all()
 
+
+
 @app.route('/public', methods=['GET'])
 def public():
     return jsonify({
@@ -219,15 +221,13 @@ def delete_questions():
 #----------------------------------------------------------------------------#
 # SEARCH QUESTIONS.
 #----------------------------------------------------------------------------#
-@app.route('/questions/', methods=['GET'])
+@app.route('/search-questions/', methods=['GET'])
 def search_questions():
-    search_term = request.args.get('search', 'noklgfkldg')
+    search_term = request.args.get('search', None)
 
-    # if search_term == None:
-    #     return jsonify({
-    #             'success': True,
-    #             'questions': None
-    #         })
+    if search_term is None:
+        abort(404)
+
     questions = Question.query.filter(Question.title.ilike('%'+search_term+'%'))
 
     return jsonify({
