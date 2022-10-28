@@ -105,11 +105,40 @@ class Question(db.Model):
         db.session.commit()
 
     def format(self):
+        answers = Answer.query.join(Question).filter(Question.id == self.id)
         return {
             'id': self.id,
             'title': self.title,
             'body': self.body,
             'tags': json.loads(self.tag),
             'created_on': self.created_on,
-            'user_id': self.user_id
+            'answers': [answer.format() for answer in answers],
+            'user_id': self.user_id,
             }
+
+class Answer(db.Model):
+    __tablename__ = 'answer'
+
+    # Autoincrementing, unique primary key
+    id = Column(Integer().with_variant(Integer, "postgresql"), primary_key=True)
+    body = Column(String(), nullable=False)
+    created_on = Column(String(80))
+
+    question = db.relationship('Question', backref=db.backref('question',lazy=True, cascade='all,delete'))
+    question_id = Column(Integer(), ForeignKey('question.id'))
+
+    def __init__(self, body, question_id):
+        self.body = body
+        self.created_on = db_string
+        self.question_id = question_id
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
