@@ -142,3 +142,11 @@ class Answer(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+    def format(self):
+        return {
+            'id': self.id,
+            'body': self.body,
+            'created_on': self.created_on,
+            'question_id': self.question_id,
+            }
