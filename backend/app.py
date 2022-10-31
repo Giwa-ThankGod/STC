@@ -8,7 +8,7 @@ from flask_cors import CORS
 from jose import jwt
 from auth import AuthError, requires_auth, requires_role
 
-from database.models import db, setup_db, User, Question
+from database.models import db, setup_db, User, Question, Answer
 
 app = Flask(__name__)
 setup_db(app)
@@ -153,6 +153,22 @@ def get_questions():
     return jsonify({
         'success': True,
         'questions': paginated_questions
+    })
+#----------------------------------------------------------------------------#
+
+#----------------------------------------------------------------------------#
+# QUESTION DETAIL.
+#----------------------------------------------------------------------------#
+@app.route('/questions/<id>', methods=['GET'])
+def question_detail(id):
+    question = Question.query.filter(Question.id == id).first()
+
+    if question is None:
+        abort(404)
+
+    return jsonify({
+        'success': True,
+        'question': question.format(),
     })
 #----------------------------------------------------------------------------#
 
