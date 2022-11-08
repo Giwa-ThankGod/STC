@@ -127,7 +127,7 @@ def login():
     
     if auth and user.is_authenticated(auth.password):
         token = jwt.encode({
-            'roles': user.role,
+            'roles': user.short(),
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24),
         },os.environ['SECRET_KEY'])
         return jsonify({'token' : token})
@@ -269,6 +269,35 @@ def search_questions():
         'success': True,
         'search_term': search_term,
         'questions': [question.short_format() for question in questions]
+    })
+#----------------------------------------------------------------------------#
+
+#----------------------------------------------------------------------------#
+# CREATE ANWERS.
+#----------------------------------------------------------------------------#
+@app.route('/anwers', methods=['POST'])
+@requires_auth
+@requires_role(role='student')
+def create_answers(token):
+    #grab post arguments
+    data = request.get_json()
+
+    body = data.get("body", None)
+    question_id = data.get("question_id", None)
+
+    try:
+        answer = Answer(    
+            body = body,
+            question_id = question_id
+        )
+        answer.insert()
+    except:
+        abort(422)
+
+    return jsonify({
+        "success": True,
+        "token": token,
+        "answer": answer.id
     })
 #----------------------------------------------------------------------------#
 
