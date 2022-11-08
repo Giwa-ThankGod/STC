@@ -104,7 +104,7 @@ class Question(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    def format(self):
+    def short_format(self):
         answers = Answer.query.join(Question).filter(Question.id == self.id)
         return {
             'id': self.id,
