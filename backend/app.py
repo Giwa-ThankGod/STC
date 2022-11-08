@@ -24,7 +24,7 @@ def paginate(request, selection):
     start = (page - 1) * QUESTIONS_PER_PAGE
     end = start + 10
 
-    formatted_questions = [entity.format() for entity in selection]
+    formatted_questions = [entity.short_format() for entity in selection]
     current_questions = formatted_questions[start:end]
 
     return current_questions
@@ -168,7 +168,7 @@ def question_detail(id):
 
     return jsonify({
         'success': True,
-        'question': question.format(),
+        'question': question.long_format(),
     })
 #----------------------------------------------------------------------------#
 
@@ -228,7 +228,7 @@ def update_questions(id):
 
     return jsonify({
         'success': True,
-        'questions': [question.format() for question in questions]
+        'questions': [question.short_format() for question in questions]
     })
 #----------------------------------------------------------------------------#
 
@@ -245,7 +245,7 @@ def delete_questions():
 
     return jsonify({
         'success': True,
-        'questions': question.format()
+        'questions': question.short_format()
     })
 #----------------------------------------------------------------------------#
 
@@ -268,7 +268,7 @@ def search_questions():
     return jsonify({
         'success': True,
         'search_term': search_term,
-        'questions': [question.format() for question in questions]
+        'questions': [question.short_format() for question in questions]
     })
 #----------------------------------------------------------------------------#
 
