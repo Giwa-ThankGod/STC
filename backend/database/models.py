@@ -105,6 +105,16 @@ class Question(db.Model):
         db.session.commit()
 
     def short_format(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'body': self.body,
+            'tags': json.loads(self.tag),
+            'created_on': self.created_on,
+            'user_id': self.user_id,
+            }
+
+    def long_format(self):
         answers = Answer.query.join(Question).filter(Question.id == self.id)
         return {
             'id': self.id,
