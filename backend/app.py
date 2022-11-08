@@ -127,7 +127,8 @@ def login():
     
     if auth and user.is_authenticated(auth.password):
         token = jwt.encode({
-            'roles': user.short(),
+            'roles': user.role,
+            'user': user.short(),
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24),
         },os.environ['SECRET_KEY'])
         return jsonify({'token' : token})
