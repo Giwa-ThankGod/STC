@@ -259,7 +259,11 @@ def search_questions():
     if search_term is None:
         abort(404)
 
-    questions = Question.query.filter(Question.title.ilike('%'+search_term+'%'))
+    questions = Question.query.filter(
+            Question.title.ilike('%'+search_term+'%') | 
+            Question.body.ilike('%'+search_term+'%') |
+            Question.tag.ilike('%'+search_term+'%')
+        )
 
     return jsonify({
         'success': True,
