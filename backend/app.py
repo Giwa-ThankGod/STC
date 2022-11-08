@@ -275,7 +275,7 @@ def search_questions():
 #----------------------------------------------------------------------------#
 # CREATE ANWERS.
 #----------------------------------------------------------------------------#
-@app.route('/anwers', methods=['POST'])
+@app.route('/answers', methods=['POST'])
 @requires_auth
 @requires_role(role='student')
 def create_answers(token):
