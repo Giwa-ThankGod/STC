@@ -60,7 +60,7 @@ def check_roles(role, payload):
     if role not in payload['roles']:
         raise AuthError({
             "code": 'invalid_role_string',
-            "description": 'Persmission string not found in payload["roles"]'
+            "description": f'Persmission string "{role}" not found in {payload["roles"]}'
         }, 403)
 
     return True
