@@ -95,7 +95,9 @@ def create_user(payload):
 # DELETE USER.
 #----------------------------------------------------------------------------#
 @app.route('/users/<int:user_id>', methods=['DELETE'])
-def delete_user(user_id):
+@requires_auth
+@requires_role(role='manager') 
+def delete_user(token,user_id):
     try:
         user = User.query.get(user_id)
         user.delete()
@@ -177,8 +179,9 @@ def question_detail(id):
 # CREATE QUESTIONS.
 #----------------------------------------------------------------------------#
 @app.route('/questions', methods=['POST'])
-# @requires_auth
-def create_questions():
+@requires_auth
+@requires_role(role='student')
+def create_questions(token):
     #grab post arguments
     data = request.get_json()
 
@@ -208,7 +211,9 @@ def create_questions():
 # UPDATE QUESTIONS.
 #----------------------------------------------------------------------------#
 @app.route('/questions/<id>', methods=['PATCH'])
-def update_questions(id):
+@requires_auth
+@requires_role(role='student')
+def update_questions(token,id):
     data = request.get_json()
 
     title = data.get("title", None)
@@ -220,7 +225,6 @@ def update_questions(id):
         question.title = title
         question.body = body
         question.tag = json.dumps(tags)
-
         question.update()
     except:
         abort(404)
@@ -237,7 +241,9 @@ def update_questions(id):
 # DELETE QUESTIONS.
 #----------------------------------------------------------------------------#
 @app.route('/questions/<id>', methods=['DELETE'])
-def delete_questions():
+@requires_auth
+@requires_role(role='student')
+def delete_questions(token):
     try:
         question = Question.query.filter(Question.id == id).first()
         question.delete()
