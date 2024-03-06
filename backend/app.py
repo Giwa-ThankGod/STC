@@ -15,7 +15,7 @@ setup_db(app)
 #Apply Migrations
 migrate = Migrate(app, db)
 
-db.create_all()
+# db.create_all()
 
 QUESTIONS_PER_PAGE = 10
 
@@ -115,7 +115,7 @@ def delete_user(token,user_id):
 # LOGIN.
 #----------------------------------------------------------------------------#
 
-@app.route('/login', methods=['POST'])
+@app.route('/accounts/signin', methods=['POST'])
 def login():
     auth = request.authorization
     

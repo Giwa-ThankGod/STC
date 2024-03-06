@@ -9,7 +9,7 @@ db_string = date.strftime("%B %d, %Y | %H:%M:%S")
 
 host = 'localhost:5432'
 database_name = 'stc'
-database_path = f'postgresql://postgres:August@{host}/{database_name}'
+database_path = f'postgresql://postgres:August404@{host}/{database_name}'
 
 db = SQLAlchemy()
 
@@ -22,7 +22,9 @@ def setup_db(app, database_path=database_path):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
     db.init_app(app)
-    db.create_all()
+
+    with app.app_context():
+        db.create_all()
 
 class User(db.Model):
     __tablename__ = 'user'
