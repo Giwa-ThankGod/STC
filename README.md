@@ -50,9 +50,9 @@ The `--reload` flag will detect file changes and restart the server automaticall
 ### Getting Started with the API
 - Base URL: At present this app can only be run locally and is not hosted as a base URL. The backend app is hosted at the default, `http://127.0.0.1:5000/`. 
 - Authentication: This version of the application requires jwt authentication. 
-Get access token by visting the domain `https://127.0.0.1:5000/login` with a valid username and password.
+Get access token by visting the domain `https://127.0.0.1:5000/accounts/signin` with a valid username and password.
 
--sample: `curl -X POST -u Pascal:Pascal123$ http://127.0.0.1:5000/login`
+-sample: `curl -X POST -u Pascal:Pascal123$ http://127.0.0.1:5000/accounts/signin`
 
 ```
 {
@@ -77,3 +77,114 @@ The API will return Six error types when requests fail:
 - 422: Not Processable
 - AuthError: Custom Error Class
 
+### Endpoints
+#### GET /questions
+- Public:
+    - Returns a list of 10 question objects, success value, and total number of questions
+    - Results are paginated in groups of 10. Include a request argument to choose page number, starting from 1. 
+        - Sample: `curl http://127.0.0.1:5000/questions?page=2`
+
+- Sample: `curl http://127.0.0.1:5000/questions`
+
+```
+{
+    "questions": [
+        {
+            "body": "I am having issues with creating my virtual environment",
+            "created_on": "October 24, 2022 | 22:48:29",
+            "id": 1,
+            "tags": [
+                "python",
+                "programming"
+            ],
+            "title": "How to create a python virtual environment",
+            "user_id": 13
+        },
+        {
+            "body": "My django project is giving me this error, template does not exist. Please help me!!!",
+            "created_on": "October 25, 2022 | 23:06:23",
+            "id": 2,
+            "tags": [
+                "python",
+                "django",
+                "template"
+            ],
+            "title": "Django Template does not exit!!!",
+            "user_id": 14
+        }
+    ],
+    "success": true
+}
+```
+
+
+#### GET /users
+- Private:
+    - Requires a valid jwt token.
+    - Authorization token must contain the permission 'patch:drinks'.
+    - Returns the logged in users token with a list of users with a shortend information about users
+
+- Sample: `curl http://127.0.0.1:5000/users`
+
+```
+{
+    "success": true,
+    "token": {
+        "exp": 1666877877,
+        "roles": "manager"
+    },
+    "users": [
+        {
+            "first_name": "Ovie",
+            "id": 5,
+            "last_name": "Ovie",
+            "password": "$2b$12$QJMBB4LiJ64xABx2EcoJduhUzIlSw.2V2mtVXgxPTBM39sippHpRa",
+            "role": "manager",
+            "username": "Ovie"
+        },
+        {
+            "first_name": "Collins",
+            "id": 9,
+            "last_name": "Collins",
+            "password": "$2b$12$YTHuERjqDLp4LOo7GfmPJeQizmbWwTyMLPiLW2GyepJADsBPFz9e2",
+            "role": "staff",
+            "username": "Collins"
+        },
+        {
+            "first_name": "Marvelous",
+            "id": 10,
+            "last_name": "Marvelous",
+            "password": "$2b$12$I8JivJ8NNIixB5noTUOkiO87EvrQ9fCd/ESWdGMYQCAvNnlQbcN1i",
+            "role": "staff",
+            "username": "Marvelous"
+        },
+        {
+            "first_name": "Love",
+            "id": 12,
+            "last_name": "Love",
+            "password": "$2b$12$tVfuyvA.kPobQgeCFEKZNOzJRs5tWyXvrdv36rBqz4645VXS2bhHm",
+            "role": "manager",
+            "username": "Love"
+        },
+        {
+            "first_name": "Pascal",
+            "id": 13,
+            "last_name": "Pascal",
+            "password": "$2b$12$9BhTS0DCrUINWOvVxRZl.uttuQeIPlHO/HfCXU6d3UVvfIQd9p99O",
+            "role": "student",
+            "username": "Pascal"
+        },
+        {
+            "first_name": "Levi",
+            "id": 14,
+            "last_name": "Levi",
+            "password": "$2b$12$mhSPMxdCwnIoYhuMxoUdLOuiMTb6btIOniHBY4f83/ov.1XqSZ4Se",
+            "role": "student",
+            "username": "Levi"
+        }
+    ]
+}
+```
+
+/questions?search=gam
+Note: search string has no quote surrounding it
