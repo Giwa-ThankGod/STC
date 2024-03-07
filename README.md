@@ -50,9 +50,9 @@ The `--reload` flag will detect file changes and restart the server automaticall
 ### Getting Started with the API
 - Base URL: At present this app can only be run locally and is not hosted as a base URL. The backend app is hosted at the default, `http://127.0.0.1:5000/`. 
 - Authentication: This version of the application requires jwt authentication. 
-Get access token by visting the domain `https://127.0.0.1:5000/accounts/signin` with a valid username and password.
+Get access token by visting the domain `https://127.0.0.1:5000/token` with a valid username and password.
 
--sample: `curl -X POST -u Pascal:Pascal123$ http://127.0.0.1:5000/accounts/signin`
+-sample: `curl -X POST -u Pascal:Pascal123$ http://127.0.0.1:5000/token`
 
 ```
 {

@@ -46,7 +46,7 @@ def private(token):
 #----------------------------------------------------------------------------#
 @app.route('/users', methods=['GET'])
 @requires_auth
-@requires_role('staff')
+# @requires_role('staff')
 def users(token):
     users = User.query.all()
 
@@ -115,7 +115,7 @@ def delete_user(token,user_id):
 # LOGIN.
 #----------------------------------------------------------------------------#
 
-@app.route('/accounts/signin', methods=['POST'])
+@app.route('/token', methods=['GET'])
 def login():
     auth = request.authorization
     
