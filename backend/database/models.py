@@ -26,6 +26,29 @@ def setup_db(app, database_path=database_path):
     with app.app_context():
         db.create_all()
 
+class Group(db.Model):
+    __tablename__ = 'group'
+
+    id = Column(Integer().with_variant(Integer, "postgresql"), primary_key=True)
+    title = Column(String(80), unique=True)
+    description = Column(String(200), nullable=True)
+
+    def __init__(self, title, description):
+        self.title = title
+        self.description = description
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
 class User(db.Model):
     __tablename__ = 'user'
 
@@ -40,6 +63,10 @@ class User(db.Model):
     is_superuser = Column(Boolean())
     is_staff = Column(Boolean())
     is_active = Column(Boolean())
+
+    # Managing RBAC(Role Based Access Control)
+    group = db.relationship('Group', backref=db.backref('group',lazy=True))
+    group_id = Column(Integer(), ForeignKey('group.id'), nullable=True)
 
     def __init__(self, username, password, first_name, last_name, role):
         self.username = username
