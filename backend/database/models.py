@@ -68,12 +68,15 @@ class User(db.Model):
     group = db.relationship('Group', backref=db.backref('group',lazy=True))
     group_id = Column(Integer(), ForeignKey('group.id'), nullable=True)
 
-    def __init__(self, username, password, first_name, last_name, role):
+    def __init__(self, username, password, role, is_superuser=False, is_staff=False, is_active=True, first_name=None, last_name=None):
         self.username = username
         self.password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
         self.first_name = first_name
         self.last_name = last_name
         self.role = role
+        self.is_superuser = is_superuser
+        self.is_staff = is_staff
+        self.is_active = is_active
 
     def insert(self):
         db.session.add(self)
