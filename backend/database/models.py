@@ -60,9 +60,9 @@ class User(db.Model):
     last_name = Column(String(80), nullable=True)
     role = Column(String(), nullable=False)
 
-    is_superuser = Column(Boolean())
-    is_staff = Column(Boolean())
-    is_active = Column(Boolean())
+    is_superuser = Column(Boolean(create_constraint=False))
+    is_staff = Column(Boolean(create_constraint=False))
+    is_active = Column(Boolean(create_constraint=True))
 
     # Managing RBAC(Role Based Access Control)
     group = db.relationship('Group', backref=db.backref('group',lazy=True))
