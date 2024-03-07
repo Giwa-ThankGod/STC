@@ -1,7 +1,7 @@
 import bcrypt
 import json
 from datetime import datetime
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
+from sqlalchemy import Column, String, Integer, Boolean, DateTime, ForeignKey
 from flask_sqlalchemy import SQLAlchemy
 
 date = datetime.now()
@@ -36,6 +36,10 @@ class User(db.Model):
     first_name = Column(String(80), nullable=True)
     last_name = Column(String(80), nullable=True)
     role = Column(String(), nullable=False)
+
+    is_superuser = Column(Boolean())
+    is_staff = Column(Boolean())
+    is_active = Column(Boolean())
 
     def __init__(self, username, password, first_name, last_name, role):
         self.username = username
@@ -76,6 +80,9 @@ class User(db.Model):
             'first_name': self.first_name,
             'last_name': self.last_name,
             'role': self.role,
+            'is_superuser': self.is_superuser,
+            'is_staff': self.is_staff,
+            'is_active': self.is_active,
         }
 
 class Question(db.Model):
