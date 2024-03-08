@@ -344,7 +344,7 @@ def search_questions():
 #----------------------------------------------------------------------------#
 # READ ANSWERS.
 #----------------------------------------------------------------------------#
-@app.route('/answers/<question_id>', methods=['GET'])
+@app.route('/questions/<question_id>/answers', methods=['GET'])
 def get_answers(question_id):
     try:
         answers = Answer.query.filter(Answer.question_id == question_id)
@@ -361,7 +361,7 @@ def get_answers(question_id):
 #----------------------------------------------------------------------------#
 # CREATE ANWERS.
 #----------------------------------------------------------------------------#
-@app.route('/answers/<question_id>', methods=['POST'])
+@app.route('/questions/<question_id>/answers', methods=['POST'])
 @requires_auth
 @requires_role(roles=['manager', 'staff', 'student'])
 def create_answers(token,question_id):
