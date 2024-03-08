@@ -233,9 +233,8 @@ def create_questions(token):
     title = data.get("title", None)
     body = data.get("body", None)
     tags = data.get("tags", None)
-    user_id = data.get("user_id", None)
 
-    if title is None or body is None or tags is None or user_id is None:
+    if title is None or body is None or tags is None:
         abort(400)
 
     try:
@@ -243,7 +242,7 @@ def create_questions(token):
             title = title,
             body = body,
             tag = json.dumps(tags),
-            user_id = user_id
+            user_id = token['user']['id']
         )
         question.insert()
     except:
