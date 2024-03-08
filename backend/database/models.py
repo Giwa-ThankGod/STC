@@ -178,6 +178,9 @@ class Answer(db.Model):
     question = db.relationship('Question', backref=db.backref('question',lazy=True, cascade='all,delete'))
     question_id = Column(Integer(), ForeignKey('question.id'))
 
+    user = db.relationship('User', backref=db.backref('answer',lazy=True, cascade='all,delete'))
+    user_id = Column(Integer(), ForeignKey('user.id'))
+
     def __init__(self, body, question_id):
         self.body = body
         self.created_on = db_string
