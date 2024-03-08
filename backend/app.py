@@ -361,17 +361,16 @@ def get_answers(question_id):
 #----------------------------------------------------------------------------#
 # CREATE ANWERS.
 #----------------------------------------------------------------------------#
-@app.route('/answers', methods=['POST'])
+@app.route('/answers/<question_id>', methods=['POST'])
 @requires_auth
 @requires_role(roles=['manager', 'staff', 'student'])
-def create_answers(token):
+def create_answers(token,question_id):
     #grab post arguments
     data = request.get_json()
 
     body = data.get("body", None)
-    question_id = data.get("question_id", None)
 
-    if body is None or question_id is None:
+    if body is None:
         abort(400)
 
     try:
@@ -385,7 +384,6 @@ def create_answers(token):
 
     return jsonify({
         "success": True,
-        "token": token,
         "answer": answer.id
     })
 #----------------------------------------------------------------------------#
