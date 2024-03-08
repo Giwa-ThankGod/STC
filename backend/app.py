@@ -92,6 +92,48 @@ def create_user(payload):
 #----------------------------------------------------------------------------#
 
 #----------------------------------------------------------------------------#
+# UPDATE USER
+#----------------------------------------------------------------------------#
+@app.route('/users/<int:user_id>', methods=['PATCH'])
+@requires_auth
+def update_user(payload, user_id):
+    user = User.query.get(user_id)
+
+    # Restricts manager role to only update students and not others with manager role.
+    if payload['roles'] == 'manager' and  user.role == 'manager':
+        abort(401)
+    elif payload['roles'] == 'manager' or payload['user']['id'] == user_id:
+        body = request.get_json()
+
+        first_name = body.get("first_name", None)
+        last_name = body.get("last_name", None)
+        role = body.get("role", None)
+
+        if first_name is None or last_name is None:
+            abort(405)
+
+        try:
+            user.first_name = first_name
+            user.last_name = last_name
+            # Only manager can update user role
+            if payload['roles'] == 'manager' and role:
+                user.role = role
+            user.update()
+        except:
+            abort(422)
+
+        return jsonify({
+            "success": True,
+            "user": user.long(),
+        })
+    else:
+        raise AuthError({
+            'code': 'unauthorized user',
+            'description': 'User is not authorized to update this user"s details.'
+        }, 401)
+#----------------------------------------------------------------------------#
+
+#----------------------------------------------------------------------------#
 # DELETE USER.
 #----------------------------------------------------------------------------#
 @app.route('/users/<int:user_id>', methods=['DELETE'])
