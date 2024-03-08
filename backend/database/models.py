@@ -65,7 +65,7 @@ class User(db.Model):
     is_active = Column(Boolean(create_constraint=True))
 
     # Managing RBAC(Role Based Access Control)
-    group = db.relationship('Group', backref=db.backref('group',lazy=True))
+    group = db.relationship('Group', backref=db.backref('users',lazy=True))
     group_id = Column(Integer(), ForeignKey('group.id'), nullable=True)
 
     def __init__(self, username, password, role, is_superuser=False, is_staff=False, is_active=True, first_name=None, last_name=None):
@@ -124,7 +124,7 @@ class Question(db.Model):
     body = Column(String(), unique=True, nullable=False)
     tag = Column(String(150), nullable=True)
     created_on = Column(String(80))
-    user = db.relationship('User', backref=db.backref('user',lazy=True, cascade='all,delete'))
+    user = db.relationship('User', backref=db.backref('questions',lazy=True, cascade='all,delete'))
     user_id = Column(Integer(), ForeignKey('user.id'))
 
     def __init__(self, title, body, tag, user_id):
@@ -175,10 +175,10 @@ class Answer(db.Model):
     body = Column(String(), nullable=False)
     created_on = Column(String(80))
 
-    question = db.relationship('Question', backref=db.backref('question',lazy=True, cascade='all,delete'))
+    question = db.relationship('Question', backref=db.backref('answers',lazy=True, cascade='all,delete'))
     question_id = Column(Integer(), ForeignKey('question.id'))
 
-    user = db.relationship('User', backref=db.backref('answer',lazy=True, cascade='all,delete'))
+    user = db.relationship('User', backref=db.backref('answers',lazy=True, cascade='all,delete'))
     user_id = Column(Integer(), ForeignKey('user.id'))
 
     def __init__(self, body, question_id, user_id):
@@ -206,3 +206,44 @@ class Answer(db.Model):
             'question_id': self.question_id,
             'user_id': self.user_id
             }
+    
+class Vote(db.Model):
+    __tablename__ = 'vote'
+
+    # Autoincrementing, unique primary key
+    id = Column(Integer().with_variant(Integer, "postgresql"), primary_key=True)
+
+    upvote = Column(Boolean(), default=False, nullable=True)
+    downvote = Column(Boolean(), default=False, nullable=True)
+
+    answer = db.relationship('Answer', backref=db.backref('votes',lazy=True, cascade='all,delete'))
+    answer_id = Column(Integer(), ForeignKey('answer.id'))
+
+    user = db.relationship('User', backref=db.backref('votes',lazy=True, cascade='all,delete'))
+    user_id = Column(Integer(), ForeignKey('user.id'))
+
+    def __init__(self, answer_id, user_id, upvote=False, downvote=False):
+        self.upvote = upvote
+        self.downvote = downvote
+        self.answer_id = answer_id
+        self.user_id = user_id
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def format(self):
+        return {
+            'id': self.id,
+            'upvote': self.upvote,
+            'downvote': self.downvote,
+            'answer_id': self.answer_id,
+            'user_id': self.user_id
+        }
