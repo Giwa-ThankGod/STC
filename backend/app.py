@@ -263,6 +263,9 @@ def create_questions(token):
 def update_questions(token,id):
     question = Question.query.filter(Question.id == id).first()
 
+    if question is None:
+        abort(404)
+
     # Allowing only the right user to update his/her question.
     if token['user']['id'] != question.user_id:
         abort(401)
