@@ -55,7 +55,7 @@ class User(db.Model):
     # Autoincrementing, unique primary key
     id = Column(Integer().with_variant(Integer, "postgresql"), primary_key=True)
     username = Column(String(80), unique=True)
-    password = Column(String(), unique=True, nullable=False)
+    password = Column(String(), nullable=False)
     first_name = Column(String(80), nullable=True)
     last_name = Column(String(80), nullable=True)
     role = Column(String(), nullable=False)
@@ -120,7 +120,7 @@ class Question(db.Model):
 
     # Autoincrementing, unique primary key
     id = Column(Integer().with_variant(Integer, "postgresql"), primary_key=True)
-    title = Column(String(80), nullable=False)
+    title = Column(String(80), nullable=False, unique=True)
     body = Column(String(), unique=True, nullable=False)
     tag = Column(String(150), nullable=True)
     created_on = Column(String(80))
