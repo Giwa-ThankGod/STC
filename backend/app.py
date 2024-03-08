@@ -389,6 +389,38 @@ def create_answers(token,question_id):
     })
 #----------------------------------------------------------------------------#
 
+#----------------------------------------------------------------------------#
+# UPDATE ANWERS.
+#----------------------------------------------------------------------------#
+@app.route('/answers/<answer_id>', methods=['PATCH'])
+@requires_auth
+@requires_role(roles=['manager', 'staff', 'student'])
+def update_answers(token,answer_id):
+    #grab post arguments
+    data = request.get_json()
+    body = data.get("body", None)
+
+    if body is None:
+        abort(400)
+
+    try:
+        answer = Answer.query.filter(Answer.id == answer_id).first()
+        
+        # Allowing only the right user to update his/her answer.
+        if token['user']['id'] != answer.user_id:
+            abort(401)
+
+        answer.body = body
+        answer.update()
+    except:
+        abort(422)
+
+    return jsonify({
+        "success": True,
+        "answer": answer.id
+    })
+#----------------------------------------------------------------------------#
+
 """
     ERROR HANDLERS
 """
