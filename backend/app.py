@@ -262,6 +262,12 @@ def create_questions(token):
 @requires_auth
 @requires_role(roles=['manager', 'staff', 'student'])
 def update_questions(token,id):
+    question = Question.query.filter(Question.id == id).first()
+
+    # Allowing only the right user to update his/her question.
+    if token['user']['id'] != question.user_id:
+        abort(401)
+
     data = request.get_json()
 
     title = data.get("title", None)
@@ -272,7 +278,6 @@ def update_questions(token,id):
         abort(400)
 
     try:
-        question = Question.query.filter(Question.id == id).first()
         question.title = title
         question.body = body
         question.tag = json.dumps(tags)
@@ -297,7 +302,11 @@ def update_questions(token,id):
 def delete_questions(token):
     try:
         question = Question.query.filter(Question.id == id).first()
-        question.delete()
+        # Allowing only the right user to delete his/her question.
+        if token['role'] == 'manager' or token['user']['id'] == question.user_id:
+            question.delete()
+        else:
+            abort(401)
     except:
         abort(404)
 
