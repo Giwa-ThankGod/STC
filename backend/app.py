@@ -298,7 +298,7 @@ def update_questions(token,id):
 @app.route('/questions/<id>', methods=['DELETE'])
 @requires_auth
 @requires_role(roles=['manager', 'staff', 'student'])
-def delete_questions(token):
+def delete_questions(token, id):
     try:
         question = Question.query.filter(Question.id == id).first()
         # Allowing only the right user to delete his/her question.
