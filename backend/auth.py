@@ -50,17 +50,17 @@ def get_token_auth_header():
     token = parts[1]
     return token
 
-def check_roles(role, payload):
-    if 'roles' not in payload:
+def check_roles(roles, payload):
+    if 'role' not in payload:
         raise AuthError({
             "code": 'role_not_included',
             "description": 'Persmission string is expected'
         }, 401)
     
-    if role not in payload['roles']:
+    if payload['role'] not in roles:
         raise AuthError({
             "code": 'invalid_role_string',
-            "description": f'Persmission string "{role}" not found in {payload["roles"]}'
+            "description": f'Persmission string "{payload["role"]}" not found in {roles}'
         }, 403)
 
     return True
@@ -90,13 +90,13 @@ def requires_auth(f):
     return decorator
 
 
-def requires_role(role=''):
+def requires_role(roles=[]):
     def requires_auth_decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
             token = get_token_auth_header()
             payload = verify_decode_jwt(token)
-            check_roles(role, payload)
+            check_roles(roles, payload)
             return f(*args, **kwargs)
 
         return wrapper

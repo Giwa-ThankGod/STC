@@ -46,7 +46,7 @@ def private(token):
 #----------------------------------------------------------------------------#
 @app.route('/users', methods=['GET'])
 @requires_auth
-# @requires_role('staff')
+@requires_role(roles=['manager', 'staff'])
 def users(token):
     users = User.query.all()
 
@@ -62,7 +62,6 @@ def users(token):
 #----------------------------------------------------------------------------#
 @app.route('/users', methods=['POST'])
 @requires_auth
-@requires_role(role='manager') 
 def create_user(payload):
     #grab post arguments
     body = request.get_json()
@@ -99,13 +98,14 @@ def create_user(payload):
 #----------------------------------------------------------------------------#
 @app.route('/users/<int:user_id>', methods=['PATCH'])
 @requires_auth
+@requires_role(roles=['manager', 'staff', 'student'])
 def update_user(payload, user_id):
     user = User.query.get(user_id)
 
     # Restricts manager role to only update students and not others with manager role.
-    if payload['roles'] == 'manager' and  user.role == 'manager':
+    if payload['role'] == 'manager' and  user.role == 'manager':
         abort(401)
-    elif payload['roles'] == 'manager' or payload['user']['id'] == user_id:
+    elif payload['role'] == 'manager' or payload['user']['id'] == user_id:
         body = request.get_json()
 
         first_name = body.get("first_name", None)
@@ -119,7 +119,7 @@ def update_user(payload, user_id):
             user.first_name = first_name
             user.last_name = last_name
             # Only manager can update user role
-            if payload['roles'] == 'manager' and role:
+            if payload['role'] == 'manager' and role:
                 user.role = role
             user.update()
         except:
@@ -141,7 +141,7 @@ def update_user(payload, user_id):
 #----------------------------------------------------------------------------#
 @app.route('/users/<int:user_id>', methods=['DELETE'])
 @requires_auth
-@requires_role(role='manager') 
+@requires_role(roles=['manager']) 
 def delete_user(token,user_id):
     try:
         user = User.query.get(user_id)
@@ -174,7 +174,7 @@ def login():
     
     if auth and user.is_authenticated(auth.password):
         token = jwt.encode({
-            'roles': user.role,
+            'role': user.role,
             'user': user.short(),
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24),
         },os.environ['SECRET_KEY'])
@@ -225,7 +225,7 @@ def question_detail(id):
 #----------------------------------------------------------------------------#
 @app.route('/questions', methods=['POST'])
 @requires_auth
-@requires_role(role='student')
+@requires_role(roles=['manager', 'staff', 'student'])
 def create_questions(token):
     #grab post arguments
     data = request.get_json()
@@ -260,7 +260,7 @@ def create_questions(token):
 #----------------------------------------------------------------------------#
 @app.route('/questions/<id>', methods=['PATCH'])
 @requires_auth
-@requires_role(role='student')
+@requires_role(roles=['manager', 'staff', 'student'])
 def update_questions(token,id):
     data = request.get_json()
 
@@ -293,7 +293,7 @@ def update_questions(token,id):
 #----------------------------------------------------------------------------#
 @app.route('/questions/<id>', methods=['DELETE'])
 @requires_auth
-@requires_role(role='student')
+@requires_role(roles=['manager', 'staff', 'student'])
 def delete_questions(token):
     try:
         question = Question.query.filter(Question.id == id).first()
@@ -335,7 +335,7 @@ def search_questions():
 #----------------------------------------------------------------------------#
 @app.route('/answers', methods=['POST'])
 @requires_auth
-@requires_role(role='student')
+@requires_role(roles=['manager', 'staff', 'student'])
 def create_answers(token):
     #grab post arguments
     data = request.get_json()
