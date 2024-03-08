@@ -195,8 +195,8 @@ def get_questions():
 
     paginated_questions = paginate(request, questions)
 
-    if paginated_questions == []:
-            abort(404)
+    # if paginated_questions == []:
+    #         abort(404)
 
     return jsonify({
         'success': True,
@@ -336,6 +336,23 @@ def search_questions():
         'success': True,
         'search_term': search_term,
         'questions': [question.short_format() for question in questions]
+    })
+#----------------------------------------------------------------------------#
+
+#----------------------------------------------------------------------------#
+# READ ANSWERS.
+#----------------------------------------------------------------------------#
+@app.route('/answers/<question_id>', methods=['GET'])
+def get_answers(question_id):
+    try:
+        answers = Answer.query.filter(question_id=question_id)
+    except:
+        abort(404)
+
+    return jsonify({
+        'success': True,
+        'answers': [answer.format() for answer in answers],
+        'count': len(answers)
     })
 #----------------------------------------------------------------------------#
 
