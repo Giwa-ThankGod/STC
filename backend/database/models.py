@@ -181,10 +181,11 @@ class Answer(db.Model):
     user = db.relationship('User', backref=db.backref('answer',lazy=True, cascade='all,delete'))
     user_id = Column(Integer(), ForeignKey('user.id'))
 
-    def __init__(self, body, question_id):
+    def __init__(self, body, question_id, user_id):
         self.body = body
         self.created_on = db_string
         self.question_id = question_id
+        self.user_id = user_id
 
     def insert(self):
         db.session.add(self)
@@ -203,4 +204,5 @@ class Answer(db.Model):
             'body': self.body,
             'created_on': self.created_on,
             'question_id': self.question_id,
+            'user_id': self.user_id
             }
