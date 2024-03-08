@@ -376,7 +376,8 @@ def create_answers(token,question_id):
     try:
         answer = Answer(    
             body = body,
-            question_id = question_id
+            question_id = question_id,
+            user_id = token['user']['id']
         )
         answer.insert()
     except:
