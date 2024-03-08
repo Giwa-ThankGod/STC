@@ -73,6 +73,9 @@ def create_user(payload):
     last_name = body.get("last_name", None)
     role = body.get("role", None)
 
+    if username is None or password is None or role is None:
+        abort(400)
+
     try:
         user = User(
             username = username,
@@ -110,7 +113,7 @@ def update_user(payload, user_id):
         role = body.get("role", None)
 
         if first_name is None or last_name is None:
-            abort(405)
+            abort(400)
 
         try:
             user.first_name = first_name
@@ -232,6 +235,9 @@ def create_questions(token):
     tags = data.get("tags", None)
     user_id = data.get("user_id", None)
 
+    if title is None or body is None or tags is None or user_id is None:
+        abort(400)
+
     try:
         question = Question(
             title = title,
@@ -261,6 +267,9 @@ def update_questions(token,id):
     title = data.get("title", None)
     body = data.get("body", None)
     tags = data.get("tags", None)
+
+    if title is None or body is None or tags is None:
+        abort(400)
 
     try:
         question = Question.query.filter(Question.id == id).first()
@@ -333,6 +342,9 @@ def create_answers(token):
 
     body = data.get("body", None)
     question_id = data.get("question_id", None)
+
+    if body is None or question_id is None:
+        abort(400)
 
     try:
         answer = Answer(    
