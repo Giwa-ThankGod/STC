@@ -347,14 +347,14 @@ def search_questions():
 @app.route('/answers/<question_id>', methods=['GET'])
 def get_answers(question_id):
     try:
-        answers = Answer.query.filter(question_id=question_id)
+        answers = Answer.query.filter(Answer.question_id == question_id)
     except:
         abort(404)
 
     return jsonify({
         'success': True,
         'answers': [answer.format() for answer in answers],
-        'count': len(answers)
+        'count': answers.count()
     })
 #----------------------------------------------------------------------------#
 
