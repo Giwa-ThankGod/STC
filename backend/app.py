@@ -622,7 +622,7 @@ def delete_articles(token, id):
         article = Article.query.filter(Article.id == id).first()
         if article is None:
             abort(404)
-            
+
         # Allowing only the right user to delete his/her article.
         if token['user']['id'] == article.user_id:
             article.delete()
@@ -636,6 +636,28 @@ def delete_articles(token, id):
     return jsonify({
         'success': True,
         'article_id': article.id
+    })
+#----------------------------------------------------------------------------#
+
+#----------------------------------------------------------------------------#
+# SEARCH ARTICLES.
+#----------------------------------------------------------------------------#
+@app.route('/search-articles/', methods=['GET'])
+def search_articles():
+    search_term = request.args.get('search', None)
+
+    if search_term is None:
+        abort(404)
+
+    articles = Article.query.filter(
+            Article.title.ilike('%'+search_term+'%') | 
+            Article.body.ilike('%'+search_term+'%')
+        )
+
+    return jsonify({
+        'success': True,
+        'search_term': search_term,
+        'articles': [article.short_format() for article in articles]
     })
 #----------------------------------------------------------------------------#
 
