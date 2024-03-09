@@ -156,16 +156,15 @@ class Question(db.Model):
             }
 
     def long_format(self):
-        answers = Answer.query.join(Question).filter(Question.id == self.id)
         return {
             'id': self.id,
             'title': self.title,
             'body': self.body,
             'tags': json.loads(self.tag),
             'created_on': self.created_on,
-            'answers': [answer.format() for answer in answers],
+            'answers': [answer.format() for answer in self.answers],
             'user_id': self.user_id,
-            }
+        }
 
 class Answer(db.Model):
     __tablename__ = 'answer'
