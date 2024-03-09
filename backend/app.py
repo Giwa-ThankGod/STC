@@ -541,7 +541,7 @@ def article_detail(id):
 #----------------------------------------------------------------------------#
 
 #----------------------------------------------------------------------------#
-# CREATE QUESTIONS.
+# CREATE ARTICLES.
 #----------------------------------------------------------------------------#
 @app.route('/articles', methods=['POST'])
 @requires_auth
@@ -568,6 +568,46 @@ def create_articles(token):
     return jsonify({
         "success": True,
         "article": article.id,
+    })
+#----------------------------------------------------------------------------#
+
+#----------------------------------------------------------------------------#
+# UPDATE ARTICLES.
+#----------------------------------------------------------------------------#
+@app.route('/articles/<id>', methods=['PATCH'])
+@requires_auth
+@requires_role(roles=['manager', 'staff'])
+def update_articles(token,id):
+    article = Article.query.filter(Article.id == id).first()
+
+    if article is None:
+        abort(404)
+
+    # Allowing only the right user to update his/her article.
+    if token['user']['id'] != article.user_id:
+        abort(401)
+
+    data = request.get_json()
+
+    title = data.get("title", None)
+    body = data.get("body", None)
+
+    if title is None or body is None:
+        abort(400)
+
+    try:
+        article.title = title
+        article.body = body
+        article.updated_on = datetime.datetime.now().strftime("%B %d, %Y | %H:%M:%S")
+        article.update()
+    except:
+        abort(422)
+
+    articles = Article.query.all()
+
+    return jsonify({
+        'success': True,
+        'articles': [article.short_format() for article in articles]
     })
 #----------------------------------------------------------------------------#
 
