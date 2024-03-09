@@ -296,15 +296,15 @@ class Article(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    def format(self):
+    def short_format(self):
         return {
             'id': self.id,
             'title': self.title,
             'body': self.body,
             'created_on': self.created_on,
             'updated_on': self.updated_on,
-            'first_name': self.first_name,
-            'last_name': self.last_name,
+            'first_name': self.user.first_name,
+            'last_name': self.user.last_name,
             'user': self.user.username,
             'user_id': self.user_id,
             'role': self.user.role
