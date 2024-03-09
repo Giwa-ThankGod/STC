@@ -8,7 +8,9 @@ from flask_cors import CORS
 from jose import jwt
 from auth import AuthError, requires_auth, requires_role
 
-from database.models import db, setup_db, User, Question, Answer
+from werkzeug.exceptions import HTTPException
+
+from database.models import db, setup_db, User, Question, Answer, Vote
 
 app = Flask(__name__)
 setup_db(app)
@@ -418,6 +420,88 @@ def update_answers(token,answer_id):
     return jsonify({
         "success": True,
         "answer": answer.id
+    })
+#----------------------------------------------------------------------------#
+
+#----------------------------------------------------------------------------#
+# UPDATE VOTE : UPVOTE
+#----------------------------------------------------------------------------#
+@app.route('/answers/<answer_id>/upvote', methods=['GET'])
+@requires_auth
+@requires_role(roles=['manager', 'staff', 'student'])
+def upvote_answers(token,answer_id):
+    try:
+        user_id = token['user']['id'] # currently logged in user.
+        answer = Answer.query.filter(Answer.id == answer_id).first()
+
+        if user_id == answer.user_id:
+            abort(400)
+        
+        # Check if user already placed a vote for this particular answer.
+        vote = Vote.query.filter(Vote.user_id == user_id, Vote.answer_id == answer_id).first()
+        
+        if vote is None:
+            # Create Vote instance for user.
+            upvote = Vote(upvote = True, answer_id = answer_id, user_id = user_id).insert()
+        elif vote and vote.downvote: # Allows user update their vote.
+            vote.upvote = True
+            vote.downvote = False
+            vote.update()
+            
+        # Calculate number of upvotes and downvotes for an answer.
+        upvotes = Vote.query.filter(Vote.answer_id == answer_id, Vote.upvote == True).count()
+        downvotes = Vote.query.filter(Vote.answer_id == answer_id, Vote.downvote == True).count()
+    except HTTPException as error:
+        if error.code == 400:
+            abort(400)
+        abort(422)
+
+    return jsonify({
+        "success": True,
+        "answer": answer_id,
+        "upvotes": upvotes,
+        "downvotes": downvotes,
+    })
+#----------------------------------------------------------------------------#
+
+#----------------------------------------------------------------------------#
+# UPDATE VOTE : DOWNVOTE
+#----------------------------------------------------------------------------#
+@app.route('/answers/<answer_id>/downvote', methods=['GET'])
+@requires_auth
+@requires_role(roles=['manager', 'staff', 'student'])
+def downvote_answers(token,answer_id):
+    try:
+        user_id = token['user']['id'] # currently logged in user.
+        answer = Answer.query.filter(Answer.id == answer_id).first()
+
+        if user_id == answer.user_id:
+            abort(400)
+        
+        # Check if user already placed a vote for this particular answer.
+        vote = Vote.query.filter(Vote.user_id == user_id, Vote.answer_id == answer_id).first()
+        
+        if vote is None:
+            # Create Vote instance for user.
+            downvote = Vote(downvote = True, answer_id = answer_id, user_id = user_id).insert()
+        elif vote and vote.upvote: # Allows user update their vote.
+            vote.upvote = False
+            vote.downvote = True
+            vote.update()
+            
+        # Calculate number of upvotes and downvotes for an answer.
+        upvotes = Vote.query.filter(Vote.answer_id == answer_id, Vote.upvote == True).count()
+        downvotes = Vote.query.filter(Vote.answer_id == answer_id, Vote.downvote == True).count()
+    except HTTPException as error:
+        if error.code == 400:
+            abort(400)
+        abort(422)
+
+    return jsonify({
+        "success": True,
+        "answer": answer_id,
+        "upvotes": upvotes,
+        "downvotes": downvotes,
     })
 #----------------------------------------------------------------------------#
 
