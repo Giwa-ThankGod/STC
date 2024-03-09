@@ -10,7 +10,7 @@ from auth import AuthError, requires_auth, requires_role
 
 from werkzeug.exceptions import HTTPException
 
-from database.models import db, setup_db, User, Question, Answer, Vote
+from database.models import db, setup_db, User, Question, Answer, Vote, Article
 
 app = Flask(__name__)
 setup_db(app)
@@ -508,6 +508,38 @@ def downvote_answers(token,answer_id):
         "downvotes": downvotes,
     })
 #----------------------------------------------------------------------------#
+
+#----------------------------------------------------------------------------#
+# READ ARTICLES.
+#----------------------------------------------------------------------------#
+@app.route('/articles', methods=['GET'])
+def get_articles():
+    articles = Article.query.all()
+
+    paginated_articles = paginate(request, articles)
+
+    return jsonify({
+        'success': True,
+        'articles': paginated_articles
+    })
+#----------------------------------------------------------------------------#
+
+#----------------------------------------------------------------------------#
+# ARTICLE DETAIL.
+#----------------------------------------------------------------------------#
+@app.route('/articles/<id>', methods=['GET'])
+def article_detail(id):
+    article = Article.query.filter(Article.id == id).first()
+
+    if article is None:
+        abort(404)
+
+    return jsonify({
+        'success': True,
+        'article': article.format()
+    })
+#----------------------------------------------------------------------------#
+
 
 """
     ERROR HANDLERS
