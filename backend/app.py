@@ -611,6 +611,34 @@ def update_articles(token,id):
     })
 #----------------------------------------------------------------------------#
 
+#----------------------------------------------------------------------------#
+# DELETE ARTICLES.
+#----------------------------------------------------------------------------#
+@app.route('/articles/<id>', methods=['DELETE'])
+@requires_auth
+@requires_role(roles=['manager', 'staff'])
+def delete_articles(token, id):
+    try:
+        article = Article.query.filter(Article.id == id).first()
+        if article is None:
+            abort(404)
+            
+        # Allowing only the right user to delete his/her article.
+        if token['user']['id'] == article.user_id:
+            article.delete()
+        else:
+            abort(401)
+    except HTTPException as error:
+        if error.code == 401:
+            abort(401)
+        abort(404)
+
+    return jsonify({
+        'success': True,
+        'article_id': article.id
+    })
+#----------------------------------------------------------------------------#
+
 
 """
     ERROR HANDLERS
