@@ -311,7 +311,9 @@ def delete_questions(token, id):
             question.delete()
         else:
             abort(401)
-    except:
+    except HTTPException as error:
+        if error.code == 401:
+            abort(401)
         abort(404)
 
     return jsonify({
@@ -414,7 +416,9 @@ def update_answers(token,answer_id):
 
         answer.body = body
         answer.update()
-    except:
+    except HTTPException as error:
+        if error.code == 401:
+            abort(401)
         abort(422)
 
     return jsonify({
