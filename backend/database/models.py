@@ -199,13 +199,24 @@ class Answer(db.Model):
         db.session.commit()
 
     def format(self):
+        # Return the upvotes and downvotes on an answer.
+        upvotes, downvotes = (0, 0)
+
+        for vote in self.votes:
+            if vote.upvote:
+                upvotes += 1
+            else:
+                downvotes += 1
+
         return {
             'id': self.id,
             'body': self.body,
             'created_on': self.created_on,
             'question_id': self.question_id,
-            'user_id': self.user_id
-            }
+            'user_id': self.user_id,
+            'upvotes': upvotes,
+            'downvotes': downvotes
+        }
     
 class Vote(db.Model):
     __tablename__ = 'vote'
