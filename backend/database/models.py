@@ -264,3 +264,48 @@ class Vote(db.Model):
             'user': self.user.username,
             'user_id': self.user_id
         }
+    
+class Article(db.Model):
+    __tablename__ = 'article'
+
+    # Autoincrementing, unique primary key
+    id = Column(Integer().with_variant(Integer, "postgresql"), primary_key=True)
+    title = Column(String(80), nullable=False, unique=True)
+    body = Column(String(), unique=True, nullable=False)
+    created_on = Column(String(80))
+    updated_on = Column(String(80))
+
+    user = db.relationship('User', backref=db.backref('articles',lazy=True, cascade='all,delete'))
+    user_id = Column(Integer(), ForeignKey('user.id'))
+
+    def __init__(self, title, body, user_id):
+        self.title = title
+        self.body = body
+        self.created_on = db_string
+        self.updated_on = db_string
+        self.user_id = user_id
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def format(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'body': self.body,
+            'created_on': self.created_on,
+            'updated_on': self.updated_on,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'user': self.user.username,
+            'user_id': self.user_id,
+            'role': self.user.role
+        }
