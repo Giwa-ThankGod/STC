@@ -540,6 +540,37 @@ def article_detail(id):
     })
 #----------------------------------------------------------------------------#
 
+#----------------------------------------------------------------------------#
+# CREATE QUESTIONS.
+#----------------------------------------------------------------------------#
+@app.route('/articles', methods=['POST'])
+@requires_auth
+@requires_role(roles=['manager', 'staff'])
+def create_articles(token):
+    data = request.get_json()
+
+    title = data.get("title", None)
+    body = data.get("body", None)
+
+    if title is None or body is None:
+        abort(400)
+
+    try:
+        article = Article(
+            title = title,
+            body = body,
+            user_id = token['user']['id']
+        )
+        article.insert()
+    except:
+        abort(422)
+
+    return jsonify({
+        "success": True,
+        "article": article.id,
+    })
+#----------------------------------------------------------------------------#
+
 
 """
     ERROR HANDLERS
