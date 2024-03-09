@@ -152,7 +152,9 @@ class Question(db.Model):
             'body': self.body,
             'tags': json.loads(self.tag),
             'created_on': self.created_on,
+            'user': self.user.username,
             'user_id': self.user_id,
+            'role': self.user.role
             }
 
     def long_format(self):
@@ -163,7 +165,9 @@ class Question(db.Model):
             'tags': json.loads(self.tag),
             'created_on': self.created_on,
             'answers': [answer.format() for answer in self.answers],
+            'user': self.user.username,
             'user_id': self.user_id,
+            'role': self.user.role
         }
 
 class Answer(db.Model):
@@ -212,7 +216,9 @@ class Answer(db.Model):
             'body': self.body,
             'created_on': self.created_on,
             'question_id': self.question_id,
+            'user': self.user.username,
             'user_id': self.user_id,
+            'role': self.user.role,
             'upvotes': upvotes,
             'downvotes': downvotes
         }
@@ -255,5 +261,6 @@ class Vote(db.Model):
             'upvote': self.upvote,
             'downvote': self.downvote,
             'answer_id': self.answer_id,
+            'user': self.user.username,
             'user_id': self.user_id
         }
