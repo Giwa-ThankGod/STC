@@ -650,9 +650,10 @@ def search_articles():
         abort(404)
 
     articles = Article.query.filter(
-            Article.title.ilike('%'+search_term+'%') | 
-            Article.body.ilike('%'+search_term+'%')
-        )
+        Article.title.ilike('%'+search_term+'%') | 
+        Article.body.ilike('%'+search_term+'%') |
+        User.username.ilike('%'+search_term+'%')
+    )
 
     return jsonify({
         'success': True,
