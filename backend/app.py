@@ -17,6 +17,7 @@ setup_db(app)
 #Apply Migrations
 migrate = Migrate(app, db)
 
+CORS(app)  # This will enable CORS for all routes
 # db.create_all()
 
 QUESTIONS_PER_PAGE = 10
